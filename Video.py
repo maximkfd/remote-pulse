@@ -1,27 +1,20 @@
 import cv2
 
-
-
 class VideoCapture():
-    """
-    This function simplifies and documents some of the details of the 
-    cv2.VideoCapture interface.
-
-    Parameters
-    ----------
-    videoSrc: integer or string
-        Specify what video source you want to use. If you want to use an
-        external webcam on a laptop that already has one built-in, specify 1
-        (usually they are in order of connection from bootup). Also, you can
-        provide a path to a video file. The default is 0 (use the default
-        webcam)
-
-    videoWidth: integer
-
-    videoHeight: integer
-
-    """
     def __init__(self, videoSrc = 0, videoHeight = 480, videoWidth=None):
+        """
+        This function simplifies and documents some of the details of the 
+        cv2.VideoCapture interface.
+
+        Parameters
+        ----------
+        videoSrc : integer or string 
+           Specify what video source you want to use. If you want to use an external
+           webcam on a laptop that already has one built-in, specify 1 (usually they
+           are in order of connection from bootup). Also, you can provide a path to
+           a video file. The default is 0 (use the default webcam)
+        videoWidth, videoHeight : integer
+        """
         # Acquire the camera and set some parameters
         # If your OS supports it, there are a few Universal Video Controller
         # parameters parameters you can set (like turning auto WB/gain/etc. off)
