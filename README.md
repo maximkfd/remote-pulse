@@ -1,12 +1,12 @@
 Installation
 ------------
-Install Python, Numpy, and OpenCV. I have had best results using Python(x,y) on Windows, but you need to select OpenCV on the install for it to load the proper DLL's. Another distribution, Anaconda, supposedly works on all platforms, but I haven't tried it yet. Let me know what you find and I'll add it to this README.
+Install Python, Numpy, and OpenCV. I have had best results using [Python(x,y)](http://code.google.com/p/pythonxy/) on Windows, but you need to select OpenCV on the install for it to load the proper DLL's. Another distribution, [Anaconda](https://store.continuum.io/cshop/anaconda/), supposedly works on all platforms, but I haven't tried it yet. Let me know what you find and I'll add it to this README.
 
-The most recent version of Python(x,y) should work fine, as the bug detailed here (https://code.google.com/p/pythonxy/issues/detail?id=727) has been fixed according to the instructions. 
+The most recent version of Python(x,y) should work fine, as the bug detailed [here](https://code.google.com/p/pythonxy/issues/detail?id=727) has been fixed according to the instructions. 
 
 Operation
 ---------
-Run main.py with either a webcam attached or a path to a pre-recorded video file. The best video is *ncompressed* recorded in a brightly-lit environment (daylight is great) with minimal motion from the subject and passersby and minimal automatic-adjustment from the camera. An example video is at https://www.dropbox.com/s/p0cfc0kjo7n2tth/face.avi and https://www.dropbox.com/s/d2ph5n7jjoaulig/face.mp4. 
+Run main.py with either a webcam attached or a path to a pre-recorded video file. The best video is *ncompressed* recorded in a brightly-lit environment (daylight is great) with minimal motion from the subject and passersby and minimal automatic-adjustment from the camera. An example video is [face.avi](https://www.dropbox.com/s/p0cfc0kjo7n2tth/face.avi) (uncompressed, ~200MB) and [face.mp4](https://www.dropbox.com/s/d2ph5n7jjoaulig/face.mp4) (compressed, 2MB)
 
 **To change the webcam from default**
 Change videoSrc in main.py from 0 (internal/default webcam) to 1 or 2 ... n
