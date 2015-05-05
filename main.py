@@ -1,23 +1,21 @@
-"""
-T
-"""
+import numpy
 import struct
 import cv2
-import numpy
 
-from PlotRunningTimeseries import PlotRunningTimeseries
-from Video import VideoCapture, VideoWriter
-from dsp.MovingAverage import MovingAverage
-from selectors.FacesDetect import FacesDetect, draw_rects
-from selectors.MouseSelectRegions import MouseSelectRegions
-from trackers.LKHomography import LKHomography
+from python.lib.util.PlotRunningTimeseries import PlotRunningTimeseries
+from python.lib.cv.Video import VideoCapture, VideoWriter
+from python.lib.dsp.MovingAverage import MovingAverage
+from python.lib.cv.selectors.FacesDetect import FacesDetect, draw_rects
+from python.lib.cv.selectors.MouseSelectRegions import MouseSelectRegions
+from python.lib.cv.trackers.LKHomography import LKHomography
 
 
-def main(videoSource = 0, videoHeight=240, videoWidth=None, ROISize=9, gain=60,
+def main(videoSource = 0, videoHeight=240, videoWidth=None, ROISize=5, gain=40,
           outputFilePath=None):
     """
     This script reads in video frames of a person from a webcam or video and 
     displays the spatial color change and computed PPG waveform over time.
+    
     Parameters
     ----------
     videoSource : int or string
@@ -46,18 +44,19 @@ def main(videoSource = 0, videoHeight=240, videoWidth=None, ROISize=9, gain=60,
     plot = PlotRunningTimeseries(200, 3)
     
     if (type(videoSource) is int):
-        videoCap = VideoCapture(videoSource,videoWidth = videoWidth, 
-                                videoHeight = videoHeight)
+		videoCap = VideoCapture(videoSource,videoWidth = videoWidth, 
+								videoHeight = videoHeight)
     else:
         videoCap = VideoCapture(videoSource)
         
         # Find out the FOURCC code of the incoming video
+		# (It should be as uncompressed as possible)
         print 'Incoming video FOURCC code: ' + \
         str(struct.pack('>I', int(videoCap.cam.get(cv2.cv.CV_CAP_PROP_FOURCC))))
     
     region = []
     for i, frame in enumerate(videoCap):    
-        # If we don't have a region to track with..
+        # Find a region to track if we don't have one already
         if region == []:
             regions = []
             # Select regions to average over on soonest possible frame. 
@@ -128,14 +127,28 @@ def main(videoSource = 0, videoHeight=240, videoWidth=None, ROISize=9, gain=60,
         sumROI = sumROI[0:-1:ROISize, 0:-1:ROISize, :]
         
         # Subtract the current frame from the time-average and then amplify and
-        # normalize the result You could further filter this output to only show
-        # heart rate frequencies, but I feel it hinders debugging the real
-        # cause.
-        amplifiedROI = numpy.uint8(((sumROI - baseline.update(sumROI)) * gain) / (ROISize ** 2) + 128)
+        # normalize the result. You could further filter this output to only show
+        # heart rate frequencies, but I feel it hinders debugging noise sources.
         
-        result = cv2.resize(amplifiedROI, (regionWidth, regionHeight))
+        # We need to show a reasonable color change in 8 bits. 
+        
+        # Floating point values are returned here
+        baselineValues = baseline.update(sumROI)
+        
+        # For the MIT video, the amplitude of the pulse is (40 / 49) ~ 1 bit per pixel
+        # So the gain should be on the order of ... 50? Try and center it too by adding 128
+        amplifiedROI = ((sumROI - baselineValues) * gain) / (ROISize ** 2) + 128
+        
+#         hist = numpy.histogram(amplifiedROI,bins=numpy.arange(-300,301,50))
+#         print hist
+
+        # It's now in units of bits of resu
+        amplifiedROI = numpy.uint8(amplifiedROI)
+        
+        result = cv2.resize(amplifiedROI, (regionWidth,regionHeight))
         cv2.imshow('Result', result)
         
+        # Plot the amplified mean value of the entire face over time
         plot.update(numpy.mean(numpy.mean(amplifiedROI, axis = 0), axis = 0))
 
         # Write to an output video file if requested
@@ -151,5 +164,14 @@ def main(videoSource = 0, videoHeight=240, videoWidth=None, ROISize=9, gain=60,
     
     
 if __name__ == '__main__':
-    main(videoSource=0)
-#     main(videoSource='face_me.mp4',outputFilePath='face_out2.avi')
+	import sys
+	print "Remote Pulse Script Usage:\npython main.py <input file (0,face.mp4)> <output file (pulse.avi)>"
+	if len(sys.argv) > 1:
+		videoSource= sys.argv[1]
+	else:
+		videoSource = 'face.mp4'
+	if len(sys.argv) > 2:
+		outputFilePath = sys.argv[2]
+	else:
+		outputFilePath = 'pulse.avi'
+	main(videoSource=videoSource,outputFilePath=outputFilePath)
